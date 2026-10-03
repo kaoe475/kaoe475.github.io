@@ -1,14 +1,933 @@
 <!DOCTYPE html>
-<html>
-<input list="browsers">
-<datalist id="browsers">
-  <option value="Chrome">
-  <option value="Firefox">
-  <option value="Safari">
-</datalist>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>База Данных: АРИРАЛЫ | Ariral Intelligence Archive</title>
 
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Orbitron & Rajdhani -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ariral: {
+                            cyan: '#00f3ff',
+                            magenta: '#ff0055',
+                            purple: '#8b00ff',
+                            dark: '#050811',
+                            panel: 'rgba(12, 20, 39, 0.75)',
+                            border: 'rgba(0, 243, 255, 0.3)'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 243, 255, 0.5), inset 0 0 15px rgba(0, 243, 255, 0.2)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 85, 0.5), inset 0 0 15px rgba(255, 0, 85, 0.2)',
+                        'glow': '0 0 25px rgba(0, 243, 255, 0.8)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #03050b;
+            color: #d1f7ff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050811;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f3ff;
+            border-radius: 4px;
+            box-shadow: 0 0 8px #00f3ff;
+        }
+
+        /* Scanlines Overlay Effect */
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.3) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Backdrop */
+        .glass-panel {
+            background: rgba(8, 15, 30, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 243, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Holographic Text Effect */
+        .holo-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+
+        .holo-pink {
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.8), 0 0 20px rgba(255, 0, 85, 0.4);
+        }
+
+        /* Glowing Animations */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 8px #00f3ff); }
+            50% { opacity: 0.3; filter: drop-shadow(0 0 2px #00f3ff); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        /* Radar Sweep Animation */
+        @keyframes radarSweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .radar-sweeper {
+            animation: radarSweep 4s linear infinite;
+            transform-origin: center center;
+        }
+
+        /* Alien Glyphs font styling fallback */
+        .alien-glyphs {
+            font-family: 'Fira Code', monospace;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen text-slate-100 selection:bg-ariral-cyan selection:text-black">
+
+    <!-- Scanlines Effect -->
+    <div class="fixed inset-0 scanlines z-40"></div>
+
+    <!-- Interactive Space Canvas Background -->
+    <canvas id="spaceCanvas" class="fixed inset-0 z-0 pointer-events-none"></canvas>
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-ariral-border/40 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToSection('hero')">
+                <div class="relative w-10 h-10 flex items-center justify-center rounded-lg bg-ariral-cyan/10 border border-ariral-cyan text-ariral-cyan shadow-neon-cyan">
+                    <i class="fa-solid fa-spaghetti-monster-flying text-xl animate-pulse"></i>
+                </div>
+                <div>
+                    <span class="font-orbitron font-extrabold text-xl tracking-wider text-white">АРИРАЛЫ<span class="text-ariral-cyan">.DB</span></span>
+                    <p class="text-[10px] font-code text-ariral-cyan/70 tracking-widest leading-none">СЕКРЕТНЫЙ АРХИВ [КЛАСС 5]</p>
+                </div>
+            </div>
+
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex items-center space-x-6 font-orbitron text-sm">
+                <button onclick="scrollToSection('lore')" class="hover:text-ariral-cyan transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-microchip text-xs text-ariral-cyan"></i>
+                    <span>О Расе</span>
+                </button>
+                <button onclick="scrollToSection('scanner')" class="hover:text-ariral-cyan transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-radar text-xs text-ariral-cyan"></i>
+                    <span>Сканер Сигналов</span>
+                </button>
+                <button onclick="scrollToSection('viewer')" class="hover:text-ariral-cyan transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-cube text-xs text-ariral-cyan"></i>
+                    <span>3D Модель</span>
+                </button>
+                <button onclick="scrollToSection('offering')" class="hover:text-ariral-magenta transition-colors flex items-center space-x-1 text-ariral-magenta font-semibold">
+                    <i class="fa-solid fa-shrimp text-xs"></i>
+                    <span>Приманка</span>
+                </button>
+            </nav>
+
+            <!-- Status Controls -->
+            <div class="flex items-center space-x-4">
+                <!-- Sound Toggle -->
+                <button id="soundToggle" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md glass-panel border border-ariral-cyan/40 text-ariral-cyan hover:bg-ariral-cyan/20 transition-all text-xs font-code flex items-center space-x-2">
+                    <i id="soundIcon" class="fa-solid fa-volume-xmark text-ariral-magenta"></i>
+                    <span id="soundText">ЗВУК: ВЫКЛ</span>
+                </button>
+
+                <!-- Cloak Level Indicator -->
+                <div class="hidden sm:flex items-center space-x-2 glass-panel px-3 py-1.5 rounded-md border border-ariral-cyan/30 text-xs font-code">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-slate-400">МАСКИРОВКА:</span>
+                    <span class="text-ariral-cyan font-bold" id="headerCloakVal">99.4%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative z-10 min-h-[90vh] flex items-center justify-center px-4 py-16">
+        <div class="max-w-5xl mx-auto text-center space-y-8">
+            
+            <!-- Cloaked Alert Tag -->
+            <div class="inline-flex items-center space-x-2 glass-panel px-4 py-1.5 rounded-full border border-ariral-cyan/50 text-ariral-cyan text-sm font-code animate-pulse-glow">
+                <i class="fa-solid fa-triangle-exclamation text-ariral-magenta"></i>
+                <span>ОБНАРУЖЕНЫ НЕВИДИМЫЕ СИГНАЛЫ В ВАШЕМ СЕКТОРЕ</span>
+            </div>
+
+            <!-- Main Title -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-tight text-white leading-tight">
+                ПРИЗРАКИ <br>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-ariral-cyan via-purple-400 to-ariral-magenta holo-text">
+                    ЭРИДАНИ-ПРАЙМ
+                </span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-300 font-rajdhani leading-relaxed">
+                <strong class="text-ariral-cyan">Ариралы (Arirals)</strong> — высокоразвитая гуманоидная раса кошаче-подобных существ, обладающих технологией полупрозрачной биолюминесценции, полной невидимости и неутолимой любовью к розыгрышам и <span class="text-ariral-magenta font-bold">земным креветкам</span>.
+            </p>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <button onclick="scrollToSection('scanner')" class="px-8 py-4 rounded-xl bg-ariral-cyan text-black font-orbitron font-bold tracking-wider hover:bg-cyan-300 transition-all transform hover:-translate-y-1 shadow-neon-cyan flex items-center space-x-3">
+                    <i class="fa-solid fa-headset text-lg"></i>
+                    <span>ПЕРЕХВАТИРОВАТЬ СИГНАЛ</span>
+                </button>
+
+                <button onclick="scrollToSection('offering')" class="px-8 py-4 rounded-xl glass-panel border border-ariral-magenta text-ariral-magenta font-orbitron font-bold tracking-wider hover:bg-ariral-magenta/20 transition-all transform hover:-translate-y-1 shadow-neon-pink flex items-center space-x-3">
+                    <i class="fa-solid fa-shrimp text-lg"></i>
+                    <span>ПОЛОЖИТЬ КРЕВЕТКУ</span>
+                </button>
+            </div>
+
+            <!-- Spec Stats Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-12">
+                <div class="glass-panel p-4 rounded-xl text-left border-l-2 border-l-ariral-cyan">
+                    <span class="block text-xs font-code text-slate-400">РОДНОЙ МИР</span>
+                    <span class="font-orbitron font-bold text-lg text-white">Eridani-Prime</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl text-left border-l-2 border-l-ariral-magenta">
+                    <span class="block text-xs font-code text-slate-400">СТАТУС НЕВИДИМОСТИ</span>
+                    <span class="font-orbitron font-bold text-lg text-ariral-magenta">АКТИВЕН (99%)</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl text-left border-l-2 border-l-purple-500">
+                    <span class="block text-xs font-code text-slate-400">ТЕХНОЛОГИИ</span>
+                    <span class="font-orbitron font-bold text-lg text-purple-300">Класс VIII (Грави)</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl text-left border-l-2 border-l-emerald-400">
+                    <span class="block text-xs font-code text-slate-400">ОТНОШЕНИЕ К ЛЮДЯМ</span>
+                    <span class="font-orbitron font-bold text-lg text-emerald-400">Игривое / Шаловливое</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lore & Database Section -->
+    <section id="lore" class="relative z-10 py-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-5xl font-orbitron font-bold text-white mb-3">
+                АРХИВНЫЕ <span class="text-ariral-cyan">ДАННЫЕ</span>
+            </h2>
+            <p class="text-slate-400 max-w-xl mx-auto">Рассекреченные сведения космической разведки об анатомии, привычках и оборудовании Ариралов.</p>
+        </div>
+
+        <!-- Lore Tabs Container -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar Navigation Tabs -->
+            <div class="lg:col-span-4 flex flex-col space-y-3">
+                <button onclick="switchLoreTab('tab-bio')" id="btn-tab-bio" class="lore-tab-btn active glass-panel p-4 rounded-xl text-left font-orbitron font-bold flex items-center justify-between border-l-4 border-l-ariral-cyan text-ariral-cyan transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-dna text-xl"></i>
+                        <span>Биология и Внешний Вид</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+
+                <button onclick="switchLoreTab('tab-home')" id="btn-tab-home" class="lore-tab-btn glass-panel p-4 rounded-xl text-left font-orbitron font-bold flex items-center justify-between border-l-4 border-l-transparent text-slate-400 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-globe text-xl"></i>
+                        <span>Планета Eridani-Prime</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+
+                <button onclick="switchLoreTab('tab-tech')" id="btn-tab-tech" class="lore-tab-btn glass-panel p-4 rounded-xl text-left font-orbitron font-bold flex items-center justify-between border-l-4 border-l-transparent text-slate-400 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-mask text-xl"></i>
+                        <span>Стелс и Гравитация</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+
+                <button onclick="switchLoreTab('tab-shrimp')" id="btn-tab-shrimp" class="lore-tab-btn glass-panel p-4 rounded-xl text-left font-orbitron font-bold flex items-center justify-between border-l-4 border-l-transparent text-slate-400 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-shrimp text-xl text-ariral-magenta"></i>
+                        <span>Феномен Креветок</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Tab Content Displays -->
+            <div class="lg:col-span-8 glass-panel p-6 md:p-8 rounded-2xl relative min-h-[350px]">
+                
+                <!-- Tab 1: Bio -->
+                <div id="tab-bio" class="lore-tab-content space-y-4">
+                    <h3 class="text-2xl font-orbitron font-bold text-ariral-cyan flex items-center space-x-3">
+                        <i class="fa-solid fa-dna"></i>
+                        <span>Морфология Ариралов</span>
+                    </h3>
+                    <p class="text-slate-300 leading-relaxed text-lg">
+                        Ариралы — высокие (около 2-2.2 метров) гуманоидные существа с изящным телосложением, кошачьими чертами лица, длинными гибкими ушами и биолюминесцентными узорами на коже. 
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        <div class="bg-black/40 p-4 rounded-xl border border-ariral-cyan/20">
+                            <h4 class="font-orbitron text-sm text-ariral-cyan mb-1"><i class="fa-solid fa-[#00f3ff] fa-eye mr-2"></i>Зрение & Кожа</h4>
+                            <p class="text-xs text-slate-400">Способны видеть в инфракрасном и ультрафиолетовом спектрах. Их кожа меняет оттенок от глубокого индиго до полупрозрачного свечения в зависимости от эмоций.</p>
+                        </div>
+                        <div class="bg-black/40 p-4 rounded-xl border border-ariral-cyan/20">
+                            <h4 class="font-orbitron text-sm text-ariral-cyan mb-1"><i class="fa-solid fa-bolt mr-2"></i>Физические данные</h4>
+                            <p class="text-xs text-slate-400">Обладают ловкостью, превосходящей человеческую в 4 раза. Из-за пониженной гравитации родной планеты способны совершать огромные прыжки.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Home -->
+                <div id="tab-home" class="lore-tab-content hidden space-y-4">
+                    <h3 class="text-2xl font-orbitron font-bold text-ariral-cyan flex items-center space-x-3">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>Система Eridani-Prime & Аванпосты</span>
+                    </h3>
+                    <p class="text-slate-300 leading-relaxed text-lg">
+                        Родной мир — густые биолюминесцентные леса планеты Эридани-Прайм. На Земле Ариралы возводят замаскированные дерево-подобные аванпосты в глубоких чащах заповедников.
+                    </p>
+                    <div class="bg-black/40 p-4 rounded-xl border border-ariral-border">
+                        <p class="text-sm text-slate-300 italic">
+                            «Их базы выглядят как футуристичные прозрачные сферы, висящие между кронами деревьев. Они абсолютно бесшумны и маскируются под естественное преломление света.»
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Tech -->
+                <div id="tab-tech" class="lore-tab-content hidden space-y-4">
+                    <h3 class="text-2xl font-orbitron font-bold text-ariral-cyan flex items-center space-x-3">
+                        <i class="fa-solid fa-mask"></i>
+                        <span>Технологическое преимущество</span>
+                    </h3>
+                    <ul class="space-y-3 text-slate-300">
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-shield-halved text-ariral-cyan mt-1"></i>
+                            <div>
+                                <strong class="text-white font-orbitron">Стелс-Поле (Cloaking):</strong> Искажает световые волны вокруг тела. Единственный след — легкая маревая рябь в воздухе и следы на траве.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-hoverboard text-ariral-cyan mt-1"></i>
+                            <div>
+                                <strong class="text-white font-orbitron">Грави-Глайдеры:</strong> Бесшумные транспортеры, позволяющие парить над землей со скоростью до 200 км/ч.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tab 4: Shrimp -->
+                <div id="tab-shrimp" class="lore-tab-content hidden space-y-4">
+                    <h3 class="text-2xl font-orbitron font-bold text-ariral-magenta flex items-center space-x-3">
+                        <i class="fa-solid fa-shrimp"></i>
+                        <span>Аномальная Страсть к Креветкам</span>
+                    </h3>
+                    <p class="text-slate-300 leading-relaxed text-lg">
+                        Несмотря на сверхразвитые технологии, химия тела Ариралов вызывает мощнейший выплеск эндорфинов при поедании земных морепродуктов, особенно вареных или жареных креветок.
+                    </p>
+                    <div class="p-4 rounded-xl bg-ariral-magenta/10 border border-ariral-magenta/30 text-slate-200 text-sm">
+                        ⚠️️ <strong>Внимание ученым:</strong> Если вы оставите тарелку с креветками возле леса, с вероятностью 99% через 5 минут они исчезнут, а на вашем столе появится забавная инопланетная записка или игрушка.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Signal Scanner Interactive Section -->
+    <section id="scanner" class="relative z-10 py-20 px-4 bg-black/40 border-y border-ariral-border/30">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="text-center mb-10">
+                <span class="text-xs font-code text-ariral-cyan uppercase tracking-widest">[ МИНИ-ИГРА: ПЕРЕХВАТ ПЕРЕДАЧИ ]</span>
+                <h2 class="text-3xl md:text-5xl font-orbitron font-bold text-white mt-1">
+                    СКАНИРОВАНИЕ <span class="text-ariral-cyan">ЧАСТОТ</span>
+                </h2>
+                <p class="text-slate-400 mt-2">Настройте частоту и амплитуду сигнала, чтобы перехватить и расшифровать тайные разговоры Ариралов.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Radar Display Screen -->
+                <div class="lg:col-span-5 glass-panel p-6 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                    
+                    <!-- Radar Circle -->
+                    <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-2 border-ariral-cyan/40 bg-ariral-dark/80 flex items-center justify-center shadow-neon-cyan">
+                        <!-- Radar Grid Lines -->
+                        <div class="absolute inset-0 rounded-full border border-ariral-cyan/20 m-8"></div>
+                        <div class="absolute inset-0 rounded-full border border-ariral-cyan/20 m-16"></div>
+                        <div class="absolute inset-0 rounded-full border border-ariral-cyan/20 m-24"></div>
+                        <div class="absolute w-full h-[1px] bg-ariral-cyan/20"></div>
+                        <div class="absolute h-full w-[1px] bg-ariral-cyan/20"></div>
+
+                        <!-- Sweeper -->
+                        <div class="absolute inset-0 rounded-full radar-sweeper bg-[conic-gradient(from_0deg,transparent_0_300deg,rgba(0,243,255,0.4)_360deg)] pointer-events-none"></div>
+
+                        <!-- Signal Blip Target -->
+                        <div id="radarBlip" class="absolute w-4 h-4 bg-ariral-magenta rounded-full animate-ping opacity-0 transition-opacity duration-300 shadow-neon-pink" style="top: 35%; left: 65%;"></div>
+
+                        <!-- Center Node -->
+                        <div class="w-3 h-3 rounded-full bg-ariral-cyan shadow-neon-cyan z-10"></div>
+                    </div>
+
+                    <!-- Target Lock Indicator -->
+                    <div class="mt-4 text-center font-code text-sm">
+                        <span class="text-slate-400">СТАТУС СИГНАЛА: </span>
+                        <span id="signalStatusText" class="text-ariral-magenta font-bold">ПОИСК СИНХРОНИЗАЦИИ...</span>
+                    </div>
+                </div>
+
+                <!-- Control Panel & Decoder -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- Sliders Box -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-6">
+                        
+                        <!-- Slider 1: Frequency -->
+                        <div>
+                            <div class="flex justify-between font-code text-sm mb-2">
+                                <label for="freqSlider" class="text-slate-300">ЧАСТОТА (MHz):</label>
+                                <span id="freqVal" class="text-ariral-cyan font-bold">142.0 MHz</span>
+                            </div>
+                            <input type="range" id="freqSlider" min="100" max="900" value="142" oninput="updateScannerControls()" class="w-full accent-ariral-cyan cursor-pointer">
+                        </div>
+
+                        <!-- Slider 2: Modulation -->
+                        <div>
+                            <div class="flex justify-between font-code text-sm mb-2">
+                                <label for="modSlider" class="text-slate-300">МОДУЛЯЦИЯ ФАЗЫ:</label>
+                                <span id="modVal" class="text-ariral-cyan font-bold">45%</span>
+                            </div>
+                            <input type="range" id="modSlider" min="0" max="100" value="45" oninput="updateScannerControls()" class="w-full accent-ariral-cyan cursor-pointer">
+                        </div>
+
+                        <!-- Target Frequency Hint -->
+                        <div class="p-3 bg-black/40 rounded-lg border border-ariral-border/40 text-xs font-code flex justify-between text-slate-400">
+                            <span>ПОДСКАЗКА СКАНЕРА:</span>
+                            <span class="text-ariral-cyan">ИСКАТЬ В РАЙОНЕ 420 MHz / 80%</span>
+                        </div>
+                    </div>
+
+                    <!-- Decrypted Message Output Box -->
+                    <div class="glass-panel p-6 rounded-2xl relative border-l-4 border-l-ariral-cyan min-h-[160px] flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-code text-ariral-cyan block mb-1">[ РАСШИФРОВАННЫЙ ПЕРЕХВАТ ]</span>
+                            
+                            <!-- Encrypted alien glyph text -->
+                            <div id="rawGlyphs" class="alien-glyphs text-lg text-ariral-magenta tracking-widest break-all mb-2">
+                                ⎎⍜⍀☌⟒⏁ ⏁⠓⟒ ⍜⍀⎍⏁⬎⬎...
+                            </div>
+
+                            <!-- Human translated text -->
+                            <div id="translatedText" class="font-orbitron text-xl text-white font-semibold">
+                                НЕТ СИГНАЛА. ОТРЕГУЛИРУЙТЕ ЧАСТОТУ.
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-ariral-border/30 flex justify-between items-center text-xs font-code text-slate-400">
+                            <span id="cipherCode">КОД КРИПТОГРАФИИ: #00-NULL</span>
+                            <button onclick="playInterceptBeep()" class="text-ariral-cyan hover:underline flex items-center space-x-1">
+                                <i class="fa-solid fa-play"></i>
+                                <span>ПРОСЛУШАТЬ ЗВУК</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Specimen Hologram Section -->
+    <section id="viewer" class="relative z-10 py-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-10">
+            <span class="text-xs font-code text-ariral-cyan uppercase tracking-widest">[ ИНТЕРАКТИВНЫЙ 3D ПРОСМОТРЩИК ]</span>
+            <h2 class="text-3xl md:text-5xl font-orbitron font-bold text-white mt-1">
+                ГОЛОГРАММА <span class="text-ariral-cyan">ОБОРУДОВАНИЯ</span>
+            </h2>
+            <p class="text-slate-400 mt-2">Вращайте мышью 3D-модель стелс-дрона и скафандра Ариралов.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- 3D Canvas Box -->
+            <div class="lg:col-span-8 glass-panel p-4 rounded-2xl relative min-h-[400px] flex items-center justify-center overflow-hidden">
+                <canvas id="hologramCanvas" class="w-full h-[380px] cursor-grab active:cursor-grabbing"></canvas>
+                
+                <!-- Hologram Overlay HUD Controls -->
+                <div class="absolute top-6 left-6 font-code text-xs space-y-1 bg-black/50 p-3 rounded-lg border border-ariral-cyan/30 pointer-events-none">
+                    <div class="text-ariral-cyan font-bold">ОБЪЕКТ: ARIRAL STEALTH DRONE</div>
+                    <div class="text-slate-400">ВРАЩЕНИЕ: ИНТЕРАКТИВНОЕ</div>
+                    <div class="text-emerald-400">ПОЛЕ МАСКИРОВКИ: АКТИВНО</div>
+                </div>
+
+                <div class="absolute bottom-6 right-6 flex space-x-2">
+                    <button onclick="changeHoloColor('#00f3ff')" class="w-6 h-6 rounded-full bg-ariral-cyan border-2 border-white/50 hover:scale-110 transition-transform"></button>
+                    <button onclick="changeHoloColor('#ff0055')" class="w-6 h-6 rounded-full bg-ariral-magenta border-2 border-white/50 hover:scale-110 transition-transform"></button>
+                    <button onclick="changeHoloColor('#a855f7')" class="w-6 h-6 rounded-full bg-purple-500 border-2 border-white/50 hover:scale-110 transition-transform"></button>
+                </div>
+            </div>
+
+            <!-- Tech Details Sidebar -->
+            <div class="lg:col-span-4 space-y-4">
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <h3 class="text-xl font-orbitron font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-microchip text-ariral-cyan"></i>
+                        <span>Спецификации Дрона</span>
+                    </h3>
+                    <p class="text-sm text-slate-300">
+                        Автономный разведывательный модуль Ариралов. Используется для сканирования местности, доставки морепродуктов и генерации голографических иллюзий.
+                    </p>
+
+                    <div class="space-y-3 font-code text-xs pt-2">
+                        <div>
+                            <div class="flex justify-between text-slate-400 mb-1">
+                                <span>ЭНЕРГИЯ КРИСТАЛЛА:</span>
+                                <span class="text-ariral-cyan">98%</span>
+                            </div>
+                            <div class="w-full h-2 bg-black/60 rounded-full overflow-hidden">
+                                <div class="h-full bg-ariral-cyan w-[98%] shadow-neon-cyan"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-slate-400 mb-1">
+                                <span>ПЛОТНОСТЬ ПОЛЯ:</span>
+                                <span class="text-ariral-magenta">100%</span>
+                            </div>
+                            <div class="w-full h-2 bg-black/60 rounded-full overflow-hidden">
+                                <div class="h-full bg-ariral-magenta w-full shadow-neon-pink"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="pulseHologramEffect()" class="w-full py-3 rounded-xl bg-ariral-cyan/20 border border-ariral-cyan text-ariral-cyan font-orbitron font-bold text-sm hover:bg-ariral-cyan/40 transition-all">
+                        ИМПУЛЬС СТЕЛС-ПОЛЯ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Offering Station (Shrimp Generator Game) -->
+    <section id="offering" class="relative z-10 py-20 px-4 bg-black/50 border-t border-ariral-border/30">
+        <div class="max-w-5xl mx-auto text-center space-y-8">
+            <div>
+                <span class="text-xs font-code text-ariral-magenta uppercase tracking-widest">[ МИНИ-ИГРА: АЛТАРЬ ПОДКОРМКИ ]</span>
+                <h2 class="text-3xl md:text-5xl font-orbitron font-bold text-white mt-1">
+                    КРЕВЕТОЧНАЯ <span class="text-ariral-magenta">ПРИМАНКА</span>
+                </h2>
+                <p class="text-slate-400 mt-2 max-w-xl mx-auto">
+                    Кликните на поляну, чтобы положить свежую креветку. Если вы привлечете Арирала, вы увидите его светящиеся следы и реакцию!
+                </p>
+            </div>
+
+            <!-- Interactive Zone Box -->
+            <div id="baitArea" onclick="dropShrimp(event)" class="relative glass-panel rounded-3xl h-96 w-full border-2 border-dashed border-ariral-magenta/40 cursor-pointer overflow-hidden flex flex-col items-center justify-center group transition-all hover:border-ariral-magenta">
+                
+                <!-- Background Prompt Text -->
+                <div class="pointer-events-none text-center space-y-2 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-shrimp text-6xl text-ariral-magenta/40 animate-bounce"></i>
+                    <p class="font-orbitron font-bold text-lg text-slate-300">КЛИКНИТЕ СЮДА, ЧТОБЫ БРОСИТЬ КРЕВЕТКУ</p>
+                    <p class="font-code text-xs text-slate-500">Положенных креветок: <span id="shrimpCounter" class="text-ariral-magenta font-bold">0</span></p>
+                </div>
+
+                <!-- Ariral Footprints and Glow Layer Container -->
+                <div id="baitEffectLayer" class="absolute inset-0 pointer-events-none"></div>
+
+                <!-- Message Overlay Alert Popup -->
+                <div id="ariralReactionPopup" class="absolute bottom-6 bg-black/90 border border-ariral-cyan px-6 py-3 rounded-xl font-orbitron text-ariral-cyan text-sm opacity-0 transition-all transform translate-y-4 shadow-neon-cyan flex items-center space-x-3">
+                    <i class="fa-solid fa-comment-dots text-ariral-magenta text-lg"></i>
+                    <span id="ariralReactionText">Кто-то невидимый быстро забрал креветку!</span>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center space-x-6 text-sm font-code text-slate-400">
+                <span class="flex items-center"><i class="fa-solid fa-paw text-ariral-cyan mr-2"></i> Следы появляются на 5 сек</span>
+                <span class="flex items-center"><i class="fa-solid fa-face-smile text-ariral-magenta mr-2"></i> Реакция случайная</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="relative z-10 glass-panel border-t border-ariral-border/40 py-8 px-4 text-center">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-xs font-code text-slate-400">
+            <div>
+                © 2026 АРИРАЛЫ.DB | ВСЕ ПРАВА ЗАЩИЩЕНЫ В ГАЛАКТИКЕ
+            </div>
+            <div class="flex space-x-6">
+                <a href="#hero" class="hover:text-ariral-cyan transition-colors">Наверх</a>
+                <a href="#lore" class="hover:text-ariral-cyan transition-colors">База Данных</a>
+                <a href="#scanner" class="hover:text-ariral-cyan transition-colors">Сканер</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* -------------------------------------------------------------
+           1. AUDIO SYNTHESIZER (Web Audio API - No External Sound Files)
+           ------------------------------------------------------------- */
+        let audioCtx = null;
+        let isAudioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            isAudioMuted = !isAudioMuted;
+            const icon = document.getElementById('soundIcon');
+            const text = document.getElementById('soundText');
+
+            if (isAudioMuted) {
+                icon.className = "fa-solid fa-volume-xmark text-ariral-magenta";
+                text.innerText = "ЗВУК: ВЫКЛ";
+            } else {
+                icon.className = "fa-solid fa-volume-high text-ariral-cyan";
+                text.innerText = "ЗВУК: ВКЛ";
+                playBeepSound(600, 0.1);
+            }
+        }
+
+        function playBeepSound(freq = 440, duration = 0.1, type = 'sine') {
+            if (isAudioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playInterceptBeep() {
+            if (isAudioMuted) toggleAudio();
+            playBeepSound(880, 0.15, 'triangle');
+            setTimeout(() => playBeepSound(1200, 0.2, 'sine'), 100);
+        }
+
+        /* -------------------------------------------------------------
+           2. DYNAMIC CANVAS SPACE BACKGROUND
+           ------------------------------------------------------------- */
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 4000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.8,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005,
+                    color: Math.random() > 0.3 ? '#00f3ff' : '#ff0055'
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+
+                ctx.fillStyle = star.color;
+                ctx.globalAlpha = Math.abs(star.alpha);
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animateStars();
+
+        /* -------------------------------------------------------------
+           3. LORE TABS NAVIGATION
+           ------------------------------------------------------------- */
+        function switchLoreTab(tabId) {
+            playBeepSound(500, 0.05);
+            document.querySelectorAll('.lore-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.lore-tab-btn').forEach(btn => {
+                btn.classList.remove('border-l-ariral-cyan', 'text-ariral-cyan');
+                btn.classList.add('border-l-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('border-l-ariral-cyan', 'text-ariral-cyan');
+            activeBtn.classList.remove('border-l-transparent', 'text-slate-400');
+        }
+
+        /* -------------------------------------------------------------
+           4. INTERACTIVE SIGNAL SCANNER GAME
+           ------------------------------------------------------------- */
+        const messagesDatabase = [
+            { freq: 420, mod: 80, text: "«Кто забрал мои вареные креветки из контейнера?!»", glyph: "⎎⍜⍀⌰⟒⏁ ⏁⠓⟒ ⍜⍀⎍⏁⬎⬎" },
+            { freq: 250, mod: 30, text: "«Маскировочное поле повреждено на 2%. Люди ничего не заметив.»", glyph: "⍟⎍⍀⏁⌰⟒ ☌⍀⟟⎎⎎⟟⋏ ⍙⏃⎐⟒" },
+            { freq: 780, mod: 90, text: "«Готовим розыгрыш с летающим ведерком на их базе.»", glyph: "⌿⍀⏃⋏☍ ⎎⌰⟒⟒⏁ ⍀⟒⏃⎞⎎⍜⍀☌⟒" }
+        ];
+
+        function updateScannerControls() {
+            const freq = parseInt(document.getElementById('freqSlider').value);
+            const mod = parseInt(document.getElementById('modSlider').value);
+
+            document.getElementById('freqVal').innerText = freq + " MHz";
+            document.getElementById('modVal').innerText = mod + "%";
+
+            playBeepSound(200 + freq, 0.02);
+
+            const blip = document.getElementById('radarBlip');
+            const statusText = document.getElementById('signalStatusText');
+            const translatedText = document.getElementById('translatedText');
+            const rawGlyphs = document.getElementById('rawGlyphs');
+            const cipherCode = document.getElementById('cipherCode');
+
+            let matched = false;
+
+            messagesDatabase.forEach(msg => {
+                if (Math.abs(freq - msg.freq) < 35 && Math.abs(mod - msg.mod) < 15) {
+                    matched = true;
+                    blip.style.opacity = '1';
+                    statusText.innerText = "СИГНАЛ ЗАХВАЧЕН!";
+                    statusText.className = "text-ariral-cyan font-bold animate-pulse";
+                    translatedText.innerText = msg.text;
+                    rawGlyphs.innerText = msg.glyph;
+                    cipherCode.innerText = `КОД КРИПТОГРАФИИ: #${freq}-${mod}`;
+                    playBeepSound(800, 0.05);
+                }
+            });
+
+            if (!matched) {
+                blip.style.opacity = '0';
+                statusText.innerText = "ПОИСК СИНХРОНИЗАЦИИ...";
+                statusText.className = "text-ariral-magenta font-bold";
+                translatedText.innerText = "ПОМЕХИ... ОТРЕГУЛИРУЙТЕ ЧАСТОТУ";
+                rawGlyphs.innerText = "⎎⍜⍀⌰⟒⏁ ⏁⠓⟒ ⍜⍀⎍⏁⬎⬎ ⍙⏃⎐⟒...";
+                cipherCode.innerText = "КОД КРИПТОГРАФИИ: #00-NULL";
+            }
+        }
+
+        /* -------------------------------------------------------------
+           5. 3D HOLOGRAM CANVAS VIEWER
+           ------------------------------------------------------------- */
+        const holoCanvas = document.getElementById('hologramCanvas');
+        const hctx = holoCanvas.getContext('2d');
+        let holoAngle = 0;
+        let holoColor = '#00f3ff';
+        let isDragging = false;
+        let lastX = 0;
+
+        function resizeHoloCanvas() {
+            holoCanvas.width = holoCanvas.parentElement.clientWidth;
+            holoCanvas.height = holoCanvas.parentElement.clientHeight;
+        }
+
+        window.addEventListener('resize', resizeHoloCanvas);
+        resizeHoloCanvas();
+
+        function drawHologram() {
+            hctx.clearRect(0, 0, holoCanvas.width, holoCanvas.height);
+            const cx = holoCanvas.width / 2;
+            const cy = holoCanvas.height / 2;
+
+            hctx.strokeStyle = holoColor;
+            hctx.lineWidth = 1.5;
+            hctx.shadowBlur = 10;
+            hctx.shadowColor = holoColor;
+
+            // Draw rotating 3D Futuristic Gem/Drone Shape
+            const radius = 80;
+            const points = [
+                {x: 0, y: -radius, z: 0},
+                {x: radius * Math.cos(holoAngle), y: 0, z: radius * Math.sin(holoAngle)},
+                {x: radius * Math.cos(holoAngle + Math.PI/2), y: 0, z: radius * Math.sin(holoAngle + Math.PI/2)},
+                {x: radius * Math.cos(holoAngle + Math.PI), y: 0, z: radius * Math.sin(holoAngle + Math.PI)},
+                {x: radius * Math.cos(holoAngle + 3*Math.PI/2), y: 0, z: radius * Math.sin(holoAngle + 3*Math.PI/2)},
+                {x: 0, y: radius, z: 0}
+            ];
+
+            // Connect lines
+            for (let i = 1; i <= 4; i++) {
+                const next = i === 4 ? 1 : i + 1;
+                
+                // Top pyramid
+                hctx.beginPath();
+                hctx.moveTo(cx + points[0].x, cy + points[0].y);
+                hctx.lineTo(cx + points[i].x, cy + points[i].y);
+                hctx.stroke();
+
+                // Middle Ring
+                hctx.beginPath();
+                hctx.moveTo(cx + points[i].x, cy + points[i].y);
+                hctx.lineTo(cx + points[next].x, cy + points[next].y);
+                hctx.stroke();
+
+                // Bottom pyramid
+                hctx.beginPath();
+                hctx.moveTo(cx + points[5].x, cy + points[5].y);
+                hctx.lineTo(cx + points[i].x, cy + points[i].y);
+                hctx.stroke();
+            }
+
+            if (!isDragging) holoAngle += 0.015;
+            requestAnimationFrame(drawHologram);
+        }
+
+        holoCanvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; });
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', e => {
+            if (isDragging) {
+                const delta = e.clientX - lastX;
+                holoAngle += delta * 0.01;
+                lastX = e.clientX;
+            }
+        });
+
+        function changeHoloColor(color) {
+            holoColor = color;
+            playBeepSound(700, 0.05);
+        }
+
+        function pulseHologramEffect() {
+            playBeepSound(900, 0.2, 'sawtooth');
+            const origColor = holoColor;
+            holoColor = '#ffffff';
+            setTimeout(() => holoColor = origColor, 300);
+        }
+
+        drawHologram();
+
+        /* -------------------------------------------------------------
+           6. SHRIMP BAIT MINI-GAME
+           ------------------------------------------------------------- */
+        let shrimpCount = 0;
+        const ariralQuotes = [
+            "«О! Свежая креветка! Спасибо, человек!»",
+            "«Ням-ням! Забираю в стелс-режиме!»",
+            "«Ты заслужил уважение Ариралов!»",
+            "«*Накрывает креветку невидимой лапой*»"
+        ];
+
+        function dropShrimp(e) {
+            const rect = document.getElementById('baitArea').getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            shrimpCount++;
+            document.getElementById('shrimpCounter').innerText = shrimpCount;
+            playBeepSound(650, 0.1);
+
+            const layer = document.getElementById('baitEffectLayer');
+
+            // Create Shrimp Element
+            const shrimp = document.createElement('div');
+            shrimp.className = "absolute text-3xl transition-all duration-500 transform -translate-x-1/2 -translate-y-1/2";
+            shrimp.style.left = x + 'px';
+            shrimp.style.top = y + 'px';
+            shrimp.innerHTML = "🦐";
+            layer.appendChild(shrimp);
+
+            // Trigger Invisible Ariral Footprints and Steal Action
+            setTimeout(() => {
+                shrimp.style.opacity = '0';
+                shrimp.style.transform = 'translate(-50%, -50%) scale(1.5)';
+
+                // Create glowing footprints
+                const paw = document.createElement('div');
+                paw.className = "absolute text-2xl text-ariral-cyan animate-ping";
+                paw.style.left = (x + 20) + 'px';
+                paw.style.top = (y - 20) + 'px';
+                paw.innerHTML = "<i class='fa-solid fa-paw'></i>";
+                layer.appendChild(paw);
+
+                playBeepSound(1000, 0.15, 'triangle');
+
+                // Reaction Popup
+                const popup = document.getElementById('ariralReactionPopup');
+                const text = document.getElementById('ariralReactionText');
+                text.innerText = ariralQuotes[Math.floor(Math.random() * ariralQuotes.length)];
+                popup.style.opacity = '1';
+                popup.style.transform = 'translateY(0)';
+
+                setTimeout(() => {
+                    popup.style.opacity = '0';
+                    popup.style.transform = 'translateY(16px)';
+                    shrimp.remove();
+                    paw.remove();
+                }, 3000);
+
+            }, 800);
+        }
+
+        /* Smooth Scroll Helper */
+        function scrollToSection(id) {
+            playBeepSound(400, 0.05);
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
 </html>
-
-
-
-
